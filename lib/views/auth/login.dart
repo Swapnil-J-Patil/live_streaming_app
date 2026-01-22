@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
+import 'package:live_streaming_app/views/auth/signup.dart';
+import 'package:live_streaming_app/views/home/home.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -55,6 +57,13 @@ class _LoginState extends State<Login> {
                       email: email!,
                       password: password!,
                     );
+                    if(mounted) //To check if the widget is still visible or not
+                    {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const HomePage(),),
+                      );
+                    }
                   } on FirebaseAuthException catch (e) {
                     if (!mounted) return;
 
@@ -70,11 +79,26 @@ class _LoginState extends State<Login> {
                   }
                 }
               },
-              child: const Text("Sign Up"),
+              child: const Text("Login"),
             ),
+            const SizedBox(height: 12.0),
+            InkWell(
+              onTap: (){
+                if(mounted) //To check if the widget is still visible or not
+                    {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const Signup(),),
+                  );
+                }
+              },
+              child: Text("Create an account?"),
+            )
           ],
         ),
+
       ),
+
     );
   }
 }

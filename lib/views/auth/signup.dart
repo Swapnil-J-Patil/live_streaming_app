@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
 
+import '../home/home.dart';
+
 class Signup extends StatefulWidget {
   const Signup({super.key});
 
@@ -67,6 +69,13 @@ class _SignupState extends State<Signup> {
                       email: email!,
                       password: password!,
                     );
+                    if(mounted) //To check if the widget is still visible or not
+                        {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const HomePage(),),
+                      );
+                    }
                   } on FirebaseAuthException catch (e) {
                     if (!mounted) return;
 
