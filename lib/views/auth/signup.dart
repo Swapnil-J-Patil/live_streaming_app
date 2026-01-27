@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,6 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
-
   String? username;
   String? email;
   String? password;
@@ -53,7 +53,8 @@ class _SignupState extends State<Signup> {
             TextFormField(
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: "Password",),
+                labelText: "Password",
+              ),
               validator: ValidationBuilder().minLength(6).maxLength(15).build(),
               onChanged: (value) {
                 password = value;
@@ -65,15 +66,29 @@ class _SignupState extends State<Signup> {
               onPressed: () async {
                 if (key.currentState?.validate() ?? false) {
                   try {
-                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                      email: email!,
-                      password: password!,
-                    );
-                    if(mounted) //To check if the widget is still visible or not
-                        {
+                    UserCredential userCred = await FirebaseAuth.instance
+                        .createUserWithEmailAndPassword(
+                          email: email!,
+                          password: password!,
+                        );
+
+                    if (userCred.user != null) {
+                      var data = {
+                          "username": username,
+                          "email": email,
+                          "created_at": DateTime.now().toIso8601String(),
+                      };
+                      await FirebaseFirestore.instance
+                          .collection("users")
+                          .doc(userCred.user!.uid)
+                          .set(data);
+                    }
+                    if (mounted) //To check if the widget is still visible or not
+                    {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                          builder: (context) => const HomePage(),),
+                          builder: (context) => const HomePage(),
+                        ),
                       );
                     }
                   } on FirebaseAuthException catch (e) {
@@ -81,15 +96,21 @@ class _SignupState extends State<Signup> {
 
                     if (e.code == 'weak-password') {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("The password provided is too weak.")),
+                        const SnackBar(
+                          content: Text("The password provided is too weak."),
+                        ),
                       );
                     } else if (e.code == 'email-already-in-use') {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("The account already exists for that email.")),
+                        const SnackBar(
+                          content: Text(
+                            "The account already exists for that email.",
+                          ),
+                        ),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                         SnackBar(content: Text(e.message ?? "Signup failed")),
+                        SnackBar(content: Text(e.message ?? "Signup failed")),
                       );
                     }
                   }

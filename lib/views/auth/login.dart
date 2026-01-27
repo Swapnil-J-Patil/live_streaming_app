@@ -71,7 +71,13 @@ class _LoginState extends State<Login> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("The password provided is wrong.")),
                       );
-                    } else {
+                    }
+                    else if (e.code == 'user-not-found') {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("No user found for that email.")));
+
+                    }
+                    else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(e.message ?? "Signup failed")),
                       );

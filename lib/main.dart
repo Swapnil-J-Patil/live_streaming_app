@@ -6,7 +6,7 @@ import 'package:live_streaming_app/views/auth/login.dart';
 import 'package:live_streaming_app/views/auth/signup.dart';
 import 'package:live_streaming_app/views/home/home.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(const MyApp());
