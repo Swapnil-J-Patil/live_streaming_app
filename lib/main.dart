@@ -19,10 +19,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Live Streaming App',
       theme: ThemeData(
         fontFamily: GoogleFonts.ibmPlexSans().fontFamily ,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        primarySwatch: Colors.indigo,
+       // colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
       ),
       home: FirebaseAuth.instance.currentUser == null ?
       const Login() :

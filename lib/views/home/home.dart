@@ -40,6 +40,26 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(12.0),
+              child: Column(
+                children: [
+                  TextFormField(),
+                  Row(
+                    children: [
+                      ElevatedButton(onPressed: () {}, child: Text("Post"))
+                    ],
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
