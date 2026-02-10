@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,17 +13,23 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  TextEditingController postText = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Home Page"),
-        actions: [IconButton(onPressed: () {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => const SearchPage(),),
-          );
-          }, icon: const Icon(Icons.search))],
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const SearchPage()),
+              );
+            },
+            icon: const Icon(Icons.search),
+          ),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -45,18 +52,42 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey, width: 1.0),
+              ),
               padding: EdgeInsets.all(12.0),
               child: Column(
                 children: [
-                  TextFormField(),
+                  TextFormField(
+
+                    decoration: InputDecoration(labelText: "Post something"),
+                    controller: postText,
+                  ),
+                  const SizedBox(height: 4.0,),
                   Row(
                     children: [
-                      ElevatedButton(onPressed: () {}, child: Text("Post"))
+                      ElevatedButton(onPressed: () async{
+
+                        var data = {
+                          'time' : DateTime.now(),
+                          'type' : 'text',
+                          'content' : postText.text,
+                          'uid'  :  FirebaseAuth.instance.currentUser!.uid,
+                        };
+
+                        //9:12
+                        FirebaseFirestore.instance.collection('posts').add(data);
+                        postText.text = "";
+                        setState(() {
+
+                        });
+
+                      }, child: Text("Post")),
                     ],
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
