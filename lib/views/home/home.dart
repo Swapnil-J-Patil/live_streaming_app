@@ -88,6 +88,28 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+            
+            Expanded(child: FutureBuilder<QuerySnapshot>(future: FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).collection('timeline').get(),
+              builder: (context, snapshot)
+              {
+                if(snapshot.hasData)
+                  {
+                    if(snapshot.data?.docs.isEmpty ?? true)
+                      {
+                        return Text("No posts for you!");
+
+                      }
+                    else
+                      {
+                        return Text("Posts are available for you!");
+                      }
+                  }
+                else
+                  {
+                    return LinearProgressIndicator();
+                  }
+              },
+            ))
           ],
         ),
       ),
