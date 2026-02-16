@@ -1,16 +1,16 @@
 
 import 'package:flutter/cupertino.dart';
 
-class Textpost extends StatefulWidget {
-  const Textpost({super.key});
+class TextPost extends StatelessWidget {
+  final String text;
+  const TextPost({super.key, required this.text});
 
-  @override
-  State<Textpost> createState() => _TextpostState();
-}
-
-class _TextpostState extends State<Textpost> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Container(
+      //23:13
+      child: Text(text),
+    );
   }
 }
+

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_streaming_app/views/auth/login.dart';
 import 'package:live_streaming_app/views/home/search.dart';
+import 'package:live_streaming_app/views/utils/TextPost.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,6 +16,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   TextEditingController postText = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +41,7 @@ class _HomePageState extends State<HomePage> {
                 FirebaseAuth.instance.signOut();
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => const Login()),
-                  (route) => false,
+                      (route) => false,
                 );
               },
               title: const Text("Sign Out"),
@@ -66,48 +68,76 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 4.0,),
                   Row(
                     children: [
-                      ElevatedButton(onPressed: () async{
-
+                      ElevatedButton(onPressed: () async {
                         var data = {
-                          'time' : DateTime.now(),
-                          'type' : 'text',
-                          'content' : postText.text,
-                          'uid'  :  FirebaseAuth.instance.currentUser!.uid,
+                          'time': DateTime.now(),
+                          'type': 'text',
+                          'content': postText.text,
+                          'uid': FirebaseAuth.instance.currentUser!.uid,
                         };
 
                         //9:12
-                        FirebaseFirestore.instance.collection('posts').add(data);
+                        FirebaseFirestore.instance.collection('posts').add(
+                            data);
                         postText.text = "";
                         setState(() {
 
                         });
-
                       }, child: Text("Post")),
                     ],
                   ),
                 ],
               ),
             ),
-            
-            Expanded(child: FutureBuilder<QuerySnapshot>(future: FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).collection('timeline').get(),
-              builder: (context, snapshot)
-              {
-                if(snapshot.hasData)
-                  {
-                    if(snapshot.data?.docs.isEmpty ?? true)
-                      {
-                        return Text("No posts for you!");
 
-                      }
-                    else
-                      {
-                        return Text("Posts are available for you!");
-                      }
+            Expanded(child: FutureBuilder<QuerySnapshot>(
+              future: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(
+                  FirebaseAuth.instance.currentUser!.uid)
+                  .collection('timeline')
+                  .get(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  if (snapshot.data?.docs.isEmpty ?? true) {
+                    return Text("No posts for you!");
                   }
-                else
-                  {
-                    return LinearProgressIndicator();
+                  else {
+                    return ListView.builder(
+                        itemCount: snapshot.data?.docs.length ?? 0,
+                        itemBuilder: (context, index) {
+                          DocumentSnapshot doc = snapshot.data!.docs[index];
+                          return FutureBuilder<DocumentSnapshot>(
+                              future: FirebaseFirestore.instance
+                              .collection('posts')
+                              .doc((snapshot.data!.docs[index].data() as Map)!['post'])
+                              .get(),
+                            builder: (context, postSnapshot) {
+
+                                if(postSnapshot.hasData)
+                                  {
+                                   switch (postSnapshot.data!['type'])
+                                       {
+                                     case 'text':
+                                       return TextPost(text: postSnapshot.data!['content']);
+                                     default:
+                                       return TextPost(text: postSnapshot.data!['content']);
+
+                                       }
+
+                                  }
+                                else
+                                  {
+                                    return CircularProgressIndicator();
+                                  }
+                            },
+                          );
+                        });
                   }
+                }
+                else {
+                  return LinearProgressIndicator();
+                }
               },
             ))
           ],
