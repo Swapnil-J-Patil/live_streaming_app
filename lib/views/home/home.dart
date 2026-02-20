@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:live_streaming_app/views/auth/login.dart';
 import 'package:live_streaming_app/views/home/search.dart';
 import 'package:live_streaming_app/views/utils/TextPost.dart';
+import 'package:live_streaming_app/views/utils/image_post.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -89,7 +90,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-
+            const SizedBox(height: 10.0,),
             Expanded(child: FutureBuilder<QuerySnapshot>(
               future: FirebaseFirestore.instance
                   .collection('users')
@@ -120,6 +121,9 @@ class _HomePageState extends State<HomePage> {
                                        {
                                      case 'text':
                                        return TextPost(text: postSnapshot.data!['content']);
+                                     case 'image':
+                                       return ImagePost(text: postSnapshot.data!['content'],
+                                           url: postSnapshot.data!['url']);
                                      default:
                                        return TextPost(text: postSnapshot.data!['content']);
 
