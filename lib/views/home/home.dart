@@ -15,7 +15,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   TextEditingController postText = TextEditingController();
 
   @override
@@ -39,10 +38,10 @@ class _HomePageState extends State<HomePage> {
           children: [
             ListTile(
               onTap: () async {
-                FirebaseAuth.instance.signOut();
+                await FirebaseAuth.instance.signOut();
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => const Login()),
-                      (route) => false,
+                  (route) => false,
                 );
               },
               title: const Text("Sign Out"),
@@ -56,94 +55,81 @@ class _HomePageState extends State<HomePage> {
           children: [
             Container(
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey, width: 1.0),
+                color: Colors.white,
+                border: Border.all(color: Colors.grey),
               ),
-              padding: EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(12.0),
               child: Column(
                 children: [
                   TextFormField(
-
-                    decoration: InputDecoration(labelText: "Post something"),
                     controller: postText,
+                    decoration: const InputDecoration(
+                      labelText: "Post something",
+                    ),
                   ),
-                  const SizedBox(height: 4.0,),
+                  const SizedBox(height: 8.0),
                   Row(
                     children: [
-                      ElevatedButton(onPressed: () async {
-                        var data = {
-                          'time': DateTime.now(),
-                          'type': 'text',
-                          'content': postText.text,
-                          'uid': FirebaseAuth.instance.currentUser!.uid,
-                        };
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (postText.text.trim().isEmpty) return;
 
-                        //9:12
-                        FirebaseFirestore.instance.collection('posts').add(
-                            data);
-                        postText.text = "";
-                        setState(() {
+                          await FirebaseFirestore.instance
+                              .collection('posts')
+                              .add({
+                                'time': FieldValue.serverTimestamp(),
+                                'type': 'text',
+                                'content': postText.text.trim(),
+                                'uid': FirebaseAuth.instance.currentUser!.uid,
+                              });
 
-                        });
-                      }, child: Text("Post")),
+                          postText.clear();
+                        },
+                        child: const Text("Post"),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 10.0,),
-            Expanded(child: FutureBuilder<QuerySnapshot>(
-              future: FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(
-                  FirebaseAuth.instance.currentUser!.uid)
-                  .collection('timeline')
-                  .get(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  if (snapshot.data?.docs.isEmpty ?? true) {
-                    return Text("No posts for you!");
+            const SizedBox(height: 10.0),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('posts')
+                    .orderBy('time', descending: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
                   }
-                  else {
-                    return ListView.builder(
-                        itemCount: snapshot.data?.docs.length ?? 0,
-                        itemBuilder: (context, index) {
-                          DocumentSnapshot doc = snapshot.data!.docs[index];
-                          return FutureBuilder<DocumentSnapshot>(
-                              future: FirebaseFirestore.instance
-                              .collection('posts')
-                              .doc((snapshot.data!.docs[index].data() as Map)!['post'])
-                              .get(),
-                            builder: (context, postSnapshot) {
 
-                                if(postSnapshot.hasData)
-                                  {
-                                   switch (postSnapshot.data!['type'])
-                                       {
-                                     case 'text':
-                                       return TextPost(text: postSnapshot.data!['content']);
-                                     case 'image':
-                                       return ImagePost(text: postSnapshot.data!['content'],
-                                           url: postSnapshot.data!['url']);
-                                     default:
-                                       return TextPost(text: postSnapshot.data!['content']);
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(child: Text("No posts yet!"));
+                  }
 
-                                       }
+                  return ListView.builder(
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      final doc = snapshot.data!.docs[index];
+                      final data = doc.data() as Map<String, dynamic>;
 
-                                  }
-                                else
-                                  {
-                                    return CircularProgressIndicator();
-                                  }
-                            },
+                      switch (data['type']) {
+                        case 'text':
+                          return TextPost(text: data['content']);
+                        case 'image':
+                          return ImagePost(
+                            text: data['content'],
+                            url: data['url'],
                           );
-                        });
-                  }
-                }
-                else {
-                  return LinearProgressIndicator();
-                }
-              },
-            ))
+                        default:
+                          return TextPost(text: data['content']);
+                      }
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
