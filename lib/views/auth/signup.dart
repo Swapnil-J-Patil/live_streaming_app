@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
 
-import '../home/home.dart';
+import '../home/home_page.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});

@@ -7,14 +7,14 @@ import 'package:live_streaming_app/views/home/search.dart';
 import 'package:live_streaming_app/views/utils/TextPost.dart';
 import 'package:live_streaming_app/views/utils/image_post.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class Home extends StatefulWidget {
+  const Home({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<Home> createState() => _HomeState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomeState extends State<Home> {
   TextEditingController postText = TextEditingController();
 
   @override
@@ -41,13 +41,21 @@ class _HomePageState extends State<HomePage> {
                 await FirebaseAuth.instance.signOut();
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => const Login()),
-                  (route) => false,
+                      (route) => false,
                 );
               },
               title: const Text("Sign Out"),
             ),
           ],
         ),
+      ),
+
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
+          BottomNavigationBarItem(icon: Icon(Icons.live_tv), label: "Live"),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -77,11 +85,11 @@ class _HomePageState extends State<HomePage> {
                           await FirebaseFirestore.instance
                               .collection('posts')
                               .add({
-                                'time': FieldValue.serverTimestamp(),
-                                'type': 'text',
-                                'content': postText.text.trim(),
-                                'uid': FirebaseAuth.instance.currentUser!.uid,
-                              });
+                            'time': FieldValue.serverTimestamp(),
+                            'type': 'text',
+                            'content': postText.text.trim(),
+                            'uid': FirebaseAuth.instance.currentUser!.uid,
+                          });
 
                           postText.clear();
                         },

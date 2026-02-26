@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:live_streaming_app/views/auth/login.dart';
 import 'package:live_streaming_app/views/auth/signup.dart';
-import 'package:live_streaming_app/views/home/home.dart';
+import 'package:live_streaming_app/views/home/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

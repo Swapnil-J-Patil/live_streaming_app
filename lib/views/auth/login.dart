@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
 import 'package:live_streaming_app/views/auth/signup.dart';
-import 'package:live_streaming_app/views/home/home.dart';
+import 'package:live_streaming_app/views/home/home_page.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
