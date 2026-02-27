@@ -46,45 +46,72 @@ class _SearchPageState extends State<SearchPage> {
                         itemBuilder: (context, index) {
                           DocumentSnapshot doc = snapShot.data!.docs[index];
                           return ListTile(
+                            leading: IconButton(
+                              onPressed: () async {
+                                QuerySnapshot q = await FirebaseFirestore
+                                    .instance
+                                    .collection('chats')
+                                    .where(
+                                      'users',
+                                      arrayContains: FirebaseAuth
+                                          .instance
+                                          .currentUser!
+                                          .uid,
+                                    )
+                                    .get();
+                                //10:17
+                              },
+                              icon: Icon(Icons.chat, color: Colors.indigo),
+                            ),
                             title: Text(doc["username"]),
-                            trailing:
-                            FutureBuilder<DocumentSnapshot>(
+                            trailing: FutureBuilder<DocumentSnapshot>(
                               future: doc.reference
                                   .collection("followers")
                                   .doc(FirebaseAuth.instance.currentUser!.uid)
                                   .get(),
                               builder: (context, snapshot) {
-                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
                                   return const SizedBox(
                                     height: 20,
                                     width: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
                                   );
                                 }
 
                                 if (snapshot.hasData && snapshot.data!.exists) {
                                   return ElevatedButton(
                                     onPressed: () async {
-                                      await doc.reference.collection('followers').doc(FirebaseAuth.instance.currentUser!.uid).delete();
-                                      setState(() {
-
-                                      });
+                                      await doc.reference
+                                          .collection('followers')
+                                          .doc(
+                                            FirebaseAuth
+                                                .instance
+                                                .currentUser!
+                                                .uid,
+                                          )
+                                          .delete();
+                                      setState(() {});
                                     },
                                     child: const Text("Unfollow"),
                                   );
                                 }
 
                                 return ElevatedButton(
-                                    onPressed: () async {
-                                      await doc.reference.collection('followers').doc(FirebaseAuth.instance.currentUser!.uid).set(
-                                          {
-                                            'time': DateTime.now()
-                                          }
-                                      );
-                                      setState(() {
-
-                                      });
-                                    },
+                                  onPressed: () async {
+                                    await doc.reference
+                                        .collection('followers')
+                                        .doc(
+                                          FirebaseAuth
+                                              .instance
+                                              .currentUser!
+                                              .uid,
+                                        )
+                                        .set({'time': DateTime.now()});
+                                    setState(() {});
+                                  },
                                   child: const Text("Follow"),
                                 );
                               },

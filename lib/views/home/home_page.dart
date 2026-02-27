@@ -3,9 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_streaming_app/views/auth/login.dart';
+import 'package:live_streaming_app/views/home/home.dart';
 import 'package:live_streaming_app/views/home/search.dart';
-import 'package:live_streaming_app/views/utils/TextPost.dart';
-import 'package:live_streaming_app/views/utils/image_post.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,10 +13,9 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-//5:38
 class _HomePageState extends State<HomePage> {
 
-
+  int index = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,6 +50,12 @@ class _HomePageState extends State<HomePage> {
       ),
 
       bottomNavigationBar: BottomNavigationBar(
+        onTap: (i){
+          setState(() {
+            index = i;
+          });
+        },
+        currentIndex: index,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
@@ -59,7 +63,12 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: IndexedStack(
-
+        index: index,
+        children: [
+          Home(),
+          Container(),
+          Container()
+        ],
       )
     );
   }

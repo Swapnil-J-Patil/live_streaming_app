@@ -20,7 +20,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+     /* appBar: AppBar(
         title: const Text("Home Page"),
         actions: [
           IconButton(
@@ -50,13 +50,7 @@ class _HomeState extends State<Home> {
         ),
       ),
 
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
-          BottomNavigationBarItem(icon: Icon(Icons.live_tv), label: "Live"),
-        ],
-      ),
+*/
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
