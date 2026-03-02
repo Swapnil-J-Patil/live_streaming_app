@@ -53,13 +53,33 @@ class _SearchPageState extends State<SearchPage> {
                                     .collection('chats')
                                     .where(
                                       'users',
-                                      arrayContains: FirebaseAuth
+                                      arrayContains: [FirebaseAuth
                                           .instance
                                           .currentUser!
                                           .uid,
+                                        doc.id
+                                  ],
                                     )
                                     .get();
-                                //10:17
+                                if(q.docs.isEmpty)
+                                  {
+                                    print("No doc");
+                                    var data = {
+                                      'users' : [
+                                        FirebaseAuth.instance.currentUser!.uid,
+                                        doc.id
+                                      ],
+                                      'recent_text' : "Hi"
+                                    };
+                                    await FirebaseFirestore
+                                        .instance
+                                        .collection('chats').add(data);
+                                  }
+                                else
+                                  {
+                                    print("Doc found");
+
+                                  }
                               },
                               icon: Icon(Icons.chat, color: Colors.indigo),
                             ),
