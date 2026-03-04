@@ -10,22 +10,40 @@ class ChatList extends StatefulWidget {
   State<ChatList> createState() => _ChatListState();
 }
 
-//17:50
+//21:50
 class _ChatListState extends State<ChatList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Your Chats")),
-      body: FutureBuilder(
+      body: FutureBuilder <QuerySnapshot>(
         builder: (context, snapshot) {
-          return Text("data");
+          if (snapshot.hasData) {
+            if (snapshot.data!.docs.isEmpty ?? true) {
+              return Text("No Chats !");
+            }
+            return ListView.builder(
+              itemCount: snapshot.data?.docs.length ?? 0,
+              itemBuilder: (context, index) {
+                DocumentSnapshot doc = snapshot.data!.docs[index];
+                return ListTile(
+                  onTap: () {},
+                  title: Text("Username"),
+                  subtitle: Text(doc['recent_text'],),
+                  trailing: Icon(Icons.arrow_forward),
+                );
+              },
+            );
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
         },
         future: FirebaseFirestore.instance
             .collection('chats')
             .where(
-              'users',
-              arrayContains: [FirebaseAuth.instance.currentUser!.uid],
-            )
+          'users',
+          arrayContains: FirebaseAuth.instance.currentUser!.uid,
+        )
             .get(),
       ),
     );
