@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:live_streaming_app/views/home/chat_page.dart';
 
 class ChatList extends StatefulWidget {
   const ChatList({super.key});
@@ -10,13 +11,12 @@ class ChatList extends StatefulWidget {
   State<ChatList> createState() => _ChatListState();
 }
 
-//21:50
 class _ChatListState extends State<ChatList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Your Chats")),
-      body: FutureBuilder <QuerySnapshot>(
+      body: FutureBuilder<QuerySnapshot>(
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             if (snapshot.data!.docs.isEmpty ?? true) {
@@ -27,9 +27,15 @@ class _ChatListState extends State<ChatList> {
               itemBuilder: (context, index) {
                 DocumentSnapshot doc = snapshot.data!.docs[index];
                 return ListTile(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ChatPage(doc: doc),
+                      ),
+                    );
+                  },
                   title: Text("Username"),
-                  subtitle: Text(doc['recent_text'],),
+                  subtitle: Text(doc['recent_text']),
                   trailing: Icon(Icons.arrow_forward),
                 );
               },
@@ -41,9 +47,9 @@ class _ChatListState extends State<ChatList> {
         future: FirebaseFirestore.instance
             .collection('chats')
             .where(
-          'users',
-          arrayContains: FirebaseAuth.instance.currentUser!.uid,
-        )
+              'users',
+              arrayContains: FirebaseAuth.instance.currentUser!.uid,
+            )
             .get(),
       ),
     );
