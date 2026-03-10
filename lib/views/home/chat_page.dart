@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ChatPage extends StatefulWidget {
-
   final DocumentSnapshot doc;
 
   const ChatPage({super.key, required this.doc});
@@ -20,45 +19,97 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(title: const Text("Chat Page")),
       body: Column(
-          children: [
-            Expanded(child: StreamBuilder(stream: widget.doc.reference.collection('messages').snapshots(), builder: (context, snapshot)
-            {
-              if(snapshot.hasData)
-                {
-                  if(snapshot.data?.docs.isEmpty ?? true)
-                    {
-                      return Text("No Messages");
-                    }
-                  return Text("abdfjksld");
-                }
-              else
-                {
+        children: [
+          Expanded(
+            child: StreamBuilder(
+              stream: widget.doc.reference.collection('messages').orderBy('time').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  if (snapshot.data?.docs.isEmpty ?? true) {
+                    return Text("No Messages");
+                  }
+                  return ListView.builder(
+                    padding: EdgeInsets.all(12.0),
+                    itemBuilder: (context, index) {
+                      DocumentSnapshot msg = snapshot.data!.docs[index];
+                      if (msg['uid'] ==
+                          FirebaseAuth.instance.currentUser!.uid) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.7,
+                              margin: EdgeInsets.only(bottom: 8.0),
+                              decoration: BoxDecoration(
+                                color: Colors.indigo.shade400,
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(msg['message'].toString(),
+                                textAlign: TextAlign.right,
+                                style: TextStyle(fontSize: 16.0),
+                              ),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.7,
+                              margin: EdgeInsets.only(bottom: 8.0),
+                              decoration: BoxDecoration(
+                                color: Colors.grey,
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(msg['message'].toString(),
+                                textAlign: TextAlign.left,
+                                style: TextStyle(fontSize: 16.0),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                    itemCount: snapshot.data?.docs.length ?? 0,
+                  );
+                } else {
                   return CircularProgressIndicator();
                 }
-            })),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(child: TextFormField(
-                    decoration: InputDecoration(labelText: "Your Message",
-                    ),
-                    controller: message,),
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    decoration: InputDecoration(labelText: "Your Message"),
+                    controller: message,
                   ),
+                ),
 
-                  ElevatedButton(onPressed: () async {
-                    widget.doc.reference.collection('messages').add({
-                      'time' : DateTime.now(),
-                      'uid' : FirebaseAuth.instance.currentUser!.uid,
-                      'message' : message.text
-
-                      //28:14
+                ElevatedButton(
+                  onPressed: () async {
+                    await widget.doc.reference.collection('messages').add({
+                      'time': DateTime.now(),
+                      'uid': FirebaseAuth.instance.currentUser!.uid,
+                      'message': message.text,
                     });
-                  }, child: Text("Send"),)
-                ],
-              ),
-            )
-          ]
+                    await widget.doc.reference.update({
+                      'recent_text': message.text,
+                    });
+                    message.text = "";
+                  },
+                  child: Text("Send"),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
